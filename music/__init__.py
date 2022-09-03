@@ -15,7 +15,6 @@ def create_some_track():
     some_track.track_url = 'https://spotify/track/1'
     return some_track
 
-
 def create_app():
     app = Flask(__name__)
 
