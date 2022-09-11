@@ -7,7 +7,8 @@ from music.domainmodel.review  import Review
 from music.domainmodel.artist import Artist
 from music.domainmodel.genre import Genre
 from music.domainmodel.playlist import PlayList
-
+from music.adapters.csvdatareader import TrackCSVReader
+from bisect import bisect, bisect_left, insort_left
 
 
 class MemoryRepository(AbstractRepository):
@@ -15,13 +16,10 @@ class MemoryRepository(AbstractRepository):
     def __init__(self):
         #The following lists will be used to filter and access via ID
         self.__albums = list()
-        self.__albums_index = dict()
         self.__artists = list()
-        self.__artists_index = dict()
         self.__genres = list()
-        self.__genres_index = dict()
         self.__tracks = list()
-        self.__tracks_index = dict()
+
 
         #Normal Data
         self.__users = list()
@@ -40,7 +38,6 @@ class MemoryRepository(AbstractRepository):
         return next((pl for pl in self.__playlists if pl.list_of_tracks == playlist), None)
 
     def get_playlists_by_track(self, track: Track) -> List[PlayList]:
-
         matching_playlists = list()
 
         try:
@@ -54,6 +51,8 @@ class MemoryRepository(AbstractRepository):
             pass
 
         return matching_playlists
+    
+
     #Albums
     def add_album(self, album: Album):
         self.__albums.append(album)
@@ -73,15 +72,6 @@ class MemoryRepository(AbstractRepository):
         self.__artists.append(artist)
         self.__artists_index[artist.id] = artist
 
-    def get_artist(self, id: int) -> Artist:
-        = None
-
-        try:
-            = self.__ _index[id]
-        except KeyError:
-            pass  # Ignore exception and return None.
-
-        return 
 
     def get_artist(self, id: int) -> Artist:
         artist = None
@@ -122,3 +112,26 @@ class MemoryRepository(AbstractRepository):
             pass  # Ignore exception and return None.
 
         return track
+
+    def get_tracks_by_time(self, track: Track) -> List[PlayList]:
+        matching_playlists = list()
+
+        try:
+            for p in self.__playlists:
+                for t in p.list_of_tracks:
+                    if t.id == track.id:
+                        matching_playlists.append(p)
+                        break
+        except ValueError:
+            # No articles for specified date. Simply return an empty list.
+            pass
+
+
+def populate(data_path: Path, repo: MemoryRepository):
+    reader = TrackCSVReader()
+    repo.__tracks = reader.read_csv_files()
+    repo.__albums = list(reader.dataset_of_albums)
+    repo.__artists = list(reader.dataset_of_artists)
+    repo.__genres = list(reader.dataset_of_genres)
+
+    
