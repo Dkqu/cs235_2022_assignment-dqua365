@@ -1,4 +1,5 @@
-from ast import List
+from pathlib import Path
+from typing import List
 from music.adapters.repository import AbstractRepository, RepositoryException
 from music.domainmodel.album import Album
 from music.domainmodel.user import User
@@ -8,6 +9,7 @@ from music.domainmodel.artist import Artist
 from music.domainmodel.genre import Genre
 from music.domainmodel.playlist import PlayList
 from music.adapters.csvdatareader import TrackCSVReader
+from werkzeug.security import generate_password_hash
 from bisect import bisect, bisect_left, insort_left
 
 
@@ -128,7 +130,8 @@ class MemoryRepository(AbstractRepository):
 
 
 def populate(data_path: Path, repo: MemoryRepository):
-    reader = TrackCSVReader()
+    albums_filename = str(Path(data_path) / "comments.csv")
+    reader = TrackCSVReader(str(Path(data_path) / "raw_albums_excerpt.csv"), str(Path(data_path) / "raw_tracks_excerpt.csv"))
     repo.__tracks = reader.read_csv_files()
     repo.__albums = list(reader.dataset_of_albums)
     repo.__artists = list(reader.dataset_of_artists)
